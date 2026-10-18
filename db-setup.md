@@ -68,13 +68,14 @@ EXISTS`, `ADD COLUMN IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS` — so a fresh
 database gets its tables on the very first request, and existing databases are
 quietly brought up to date if the schema has changed.
 
-The three tables created are:
+The fourteen tables created are grouped by purpose below:
 
-| Table              | Purpose                                                         |
-| ------------------ | --------------------------------------------------------------- |
-| `payments`         | Indexed Stellar SAC transfer events (the core payment ledger)   |
-| `sync_state`       | Singleton row tracking the indexer's last-scanned ledger cursor |
-| `challenge_nonces` | Auth challenge nonces used by `/api/auth/verify`                |
+| Purpose / Domain       | Table Names                                                                                                     |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Core Indexer & Auth**| `payments`, `sync_state`, `challenge_nonces`, `merchants`                                                       |
+| **Tenancy & Roles**    | `role_tuples`, `merchant_stores`, `merchant_api_keys`                                                         |
+| **Inventory Management**| `merchant_catalog_items`, `inventory_items`, `inventory_reservations`, `inventory_reservation_items`           |
+| **Webhooks & Batches** | `receipt_batches`, `webhook_deliveries`, `webhook_attempts`                                                   |
 
 ### How to verify
 
@@ -99,11 +100,22 @@ the tables. You can now inspect them:
 docker exec -it pg psql -U postgres -c "\dt"
 
               List of relations
- Schema |      Name       | Type  |  Owner
---------+-----------------+-------+----------
- public | challenge_nonces| table | postgres
- public | payments        | table | postgres
- public | sync_state      | table | postgres
+ Schema |             Name             | Type  |  Owner
+--------+------------------------------+-------+----------
+ public | challenge_nonces             | table | postgres
+ public | inventory_items              | table | postgres
+ public | inventory_reservation_items  | table | postgres
+ public | inventory_reservations       | table | postgres
+ public | merchant_api_keys            | table | postgres
+ public | merchant_catalog_items       | table | postgres
+ public | merchant_stores              | table | postgres
+ public | merchants                    | table | postgres
+ public | payments                     | table | postgres
+ public | receipt_batches              | table | postgres
+ public | role_tuples                  | table | postgres
+ public | sync_state                   | table | postgres
+ public | webhook_attempts             | table | postgres
+ public | webhook_deliveries           | table | postgres
 ```
 
 ### Reference migrations
@@ -111,10 +123,18 @@ docker exec -it pg psql -U postgres -c "\dt"
 The `migrations/` directory contains SQL files that document the schema's
 evolution:
 
-- `migrations/001_unify_payments.sql` — unifies historical payments table
-  variants into the current canonical shape
-- `migrations/002_settlement_attribution.sql` — adds `hook_reported_at` and
-  drops NOT NULL on `amount`/`payer` for merchant-reported settlements
+- `migrations/001_unify_payments.sql` — unifies historical payments table variants into the current canonical shape
+- `migrations/002_settlement_attribution.sql` — adds `hook_reported_at` and drops NOT NULL on `amount`/`payer` for merchant-reported settlements
+- `migrations/003_multi_merchant.sql` — introduces multi-merchant support and row-level security policies
+- `migrations/004_receipt_batches.sql` — adds receipt batching and Merkle root anchoring tables
+- `migrations/005_zk_commitments.sql` — adds zero-knowledge commitment ledger tables
+- `migrations/006_merchant_profiles.sql` — adds merchant profile settings and overrides
+- `migrations/007_inventory_system.sql` — sets up inventory items, catalog items, and reservations
+- `migrations/008_webhooks.sql` — establishes webhook delivery queues and attempt tracking tables
+- `migrations/009_multi_store_organizations.sql` — adds multi-store organization and role tuple schemas
+- `migrations/010_notifications.sql` — adds merchant notification center tables
+- `migrations/011_chat_notifiers.sql` — adds chat notifier integrations for Telegram and Discord
+- `migrations/012_disputes.sql` — sets up dispute chat and tracking evidence tables
 
 These files are **not executed by any tool**. They exist as documentation of what
 `ensureSchema()` does in code. If you need to understand why a column exists or
