@@ -1,6 +1,6 @@
 # @accensa/sdk
 
-Middleware hook and receipt verification for [Accensa](https://accensa.github.io/accensa-app/), the merchant back-office for x402 sellers on Stellar.
+Middleware hook and receipt verification for Accensa, the merchant back-office for x402 sellers on Stellar.
 
 ## Installation
 
