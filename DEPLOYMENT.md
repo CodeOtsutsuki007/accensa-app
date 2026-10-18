@@ -31,9 +31,7 @@ Three moving parts, and only one of them is Vercel's:
 - **GitHub Actions** — the real indexing cadence. Explained below, because the
   `vercel.json` cron is misleading on its own.
 
-The documentation site in `apps/docs` is **not** deployed on Vercel. It is built
-by GitHub Actions and published to GitHub Pages at
-<https://accensa.github.io/accensa-app/>.
+The documentation site in `apps/docs` is **not** deployed on Vercel or GitHub Pages.
 
 > A second Vercel project named `docs` used to serve `accensa-docs.vercel.app`
 > from the same directory. It was last deployed on 2026-07-13 and had drifted
