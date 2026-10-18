@@ -70,12 +70,12 @@ quietly brought up to date if the schema has changed.
 
 The fourteen tables created are grouped by purpose below:
 
-| Purpose / Domain       | Table Names                                                                                                     |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **Core Indexer & Auth**| `payments`, `sync_state`, `challenge_nonces`, `merchants`                                                       |
-| **Tenancy & Roles**    | `role_tuples`, `merchant_stores`, `merchant_api_keys`                                                         |
-| **Inventory Management**| `merchant_catalog_items`, `inventory_items`, `inventory_reservations`, `inventory_reservation_items`           |
-| **Webhooks & Batches** | `receipt_batches`, `webhook_deliveries`, `webhook_attempts`                                                   |
+| Purpose / Domain       | Table Names                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Core Indexer & Auth**| `payments`, `sync_state`, `challenge_nonces`, `merchants`                                            |
+| **Tenancy & Roles**    | `role_tuples`, `merchant_stores`, `merchant_api_keys`                                                |
+| **Inventory Management**| `merchant_catalog_items`, `inventory_items`, `inventory_reservations`, `inventory_reservation_items` |
+| **Webhooks & Batches** | `receipt_batches`, `webhook_deliveries`, `webhook_attempts`                                          |
 
 ### How to verify
 
@@ -129,9 +129,9 @@ evolution:
 - `migrations/004_receipt_batches.sql` — adds receipt batching and Merkle root anchoring tables
 - `migrations/005_zk_commitments.sql` — adds zero-knowledge commitment ledger tables
 - `migrations/006_merchant_profiles.sql` — adds merchant profile settings and overrides
-- `migrations/007_inventory_system.sql` — sets up inventory items, catalog items, and reservations
-- `migrations/008_webhooks.sql` — establishes webhook delivery queues and attempt tracking tables
-- `migrations/009_multi_store_organizations.sql` — adds multi-store organization and role tuple schemas
+- `migrations/007_role_tuples.sql` — creates `role_tuples` for Zanzibar-style permissions
+- `migrations/008_inventory_reservations.sql` — creates inventory catalog, items, and reservation tables
+- `migrations/009_multi_store_organizations.sql` — adds multi-store organization and store tables
 - `migrations/010_notifications.sql` — adds merchant notification center tables
 - `migrations/011_chat_notifiers.sql` — adds chat notifier integrations for Telegram and Discord
 - `migrations/012_disputes.sql` — sets up dispute chat and tracking evidence tables
