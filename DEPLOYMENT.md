@@ -81,11 +81,7 @@ runs, therefore no red runs, therefore no signal.
 | **3. Long-running worker** (Railway/Fly/Render process, or a container)                                      | ~$5/month minimum for an always-on small instance.                                                                             | Most control, most operational surface. **Re-opens the extraction that caused the original outage** — the indexer logic would move out of `apps/web` again. Note that history explicitly if this is proposed. | Only worth it if the indexer grows past what a 60 s function invocation can do. It cannot today.                                                                            |
 | **4. Keep the loop, fix the defects**                                                                        | Same ~660 runner-min/day. Free on public repos; on GitHub Team/Enterprise-billed minutes it is the most expensive option here. | Acceptable once the defects below are fixed.                                                                                                                                                                  | What this repo does today, plus the fixes in this PR.                                                                                                                       |
 
-**Decision: option 4 now, with the specific defects fixed, and option 2
-(cron-job.org or EventBridge) as the documented migration when the team wants the
-runner cost gone.** Option 2 is strictly better on cost and on the cessation
-blind spot; it is not adopted in this PR only because it needs an account and a
-secret that a maintainer must create, not a code change a contributor can land.
+**Decision: option 4 now, with the specific defects fixed.** The loop runs for 55 minutes, overlaps cancel immediately, and a healthy sync or clean exit pings an optional `HEARTBEAT_URL` secret if one is configured.
 
 Defects fixed in `sync.yml` in this PR:
 
