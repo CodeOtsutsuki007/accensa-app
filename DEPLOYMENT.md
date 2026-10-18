@@ -89,19 +89,9 @@ secret that a maintainer must create, not a code change a contributor can land.
 
 Defects fixed in `sync.yml` in this PR:
 
-- **`cancel-in-progress: true` → `false`.** A hijacked hourly trigger or an
-  overlapping manual dispatch could kill a sync mid-range. Indexing is
-  idempotent so nothing corrupted, but the run was lost.
-- **Hour-boundary gap closed.** The loop now runs 65 minutes, not 55, so its
-  window overlaps the next hourly trigger. With self-cancel gone, the overlap
-  costs one extra idempotent sync instead of leaving a gap when a trigger is
-  dropped under load.
-- **External cessation monitor.** An optional `HEARTBEAT_URL` secret is pinged
-  after every healthy sync and at clean job exit. Point it at a dead-man's
-  switch (healthchecks.io free tier, cronitor, cron-job.org's own monitor) with
-  a grace period of ~90 min. If the workflow stops running at all, the pings
-  stop and the monitor alerts — which is the signal that did not exist when the
-  cursor fell 207 ledgers behind retention.
+- **`cancel-in-progress: false` (`false` by default; explicit now).** Previous runs now queue rather than being killed when a new trigger fires mid-window.
+- **Hour-boundary gap closed.** `END_TIME` now covers the full hour (`+ 3600`), bridging the gap to the next trigger.
+- **External cessation monitor (`HEARTBEAT_URL`).** Added a webhook heartbeat ping at the end of successful runs so external monitors can alert if indexing stops.
 
 All of the existing in-loop diagnostics (the 401 assertion, the `syncedTo`
 check, the `drained` / `skippedLedgers` warnings) are unchanged. Alerting on
