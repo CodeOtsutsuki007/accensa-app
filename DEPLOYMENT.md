@@ -83,11 +83,7 @@ runs, therefore no red runs, therefore no signal.
 
 **Decision: option 4 now, with the specific defects fixed.** The loop runs for 55 minutes, overlaps cancel immediately, and a healthy sync or clean exit pings an optional `HEARTBEAT_URL` secret if one is configured.
 
-Defects fixed in `sync.yml` in this PR:
-
-- **`cancel-in-progress: false` (`false` by default; explicit now).** Previous runs now queue rather than being killed when a new trigger fires mid-window.
-- **Hour-boundary gap closed.** `END_TIME` now covers the full hour (`+ 3600`), bridging the gap to the next trigger.
-- **External cessation monitor (`HEARTBEAT_URL`).** Added a webhook heartbeat ping at the end of successful runs so external monitors can alert if indexing stops.
+The loop runs for 55 minutes per invocation.
 
 All of the existing in-loop diagnostics (the 401 assertion, the `syncedTo`
 check, the `drained` / `skippedLedgers` warnings) are unchanged. Alerting on
@@ -318,3 +314,7 @@ Supabase → Settings → Database → Reset database password
 Then update `DATABASE_URL` in every Vercel environment that uses it and
 redeploy, since env changes only reach new builds. Take the **session pooler**
 string, per the IPv6 note above.
+
+| Option 4 | Standalone (systemd + cron + sync.yml) |
+
+Decision: option 4 now. The loop runs for 55 minutes.
