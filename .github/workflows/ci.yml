@@ -100,8 +100,7 @@ jobs:
         run: pnpm test
 
       # Typechecks apps/web and packages/sdk from the root.
-      # apps/docs (Docusaurus) uses its own tsconfig via @docusaurus/tsconfig
-      # and is excluded — its types are checked by docusaurus build instead.
+      # apps/docs is not built or typechecked in CI (Pages claims dropped).
       # apps/demo-merchant is plain JavaScript and has no TypeScript to check.
       - name: Typecheck workspace packages
         run: pnpm typecheck
