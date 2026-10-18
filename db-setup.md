@@ -139,7 +139,6 @@ evolution:
 These files are **not executed by any tool**. They exist as documentation of what
 `ensureSchema()` does in code. If you need to understand why a column exists or
 what changed, read the corresponding migration file for the full rationale.
-
 ## 4. Environment variables reference
 
 | Variable           | Required | Description                                                                     |
