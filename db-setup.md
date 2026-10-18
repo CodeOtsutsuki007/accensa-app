@@ -72,7 +72,7 @@ The fourteen tables created are grouped by purpose below:
 
 | Purpose / Domain       | Table Names                                                                                          |
 | ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Core Indexer & Auth** | `payments`, `sync_state`, `challenge_nonces`, `merchants`                                            |
+| **Core Indexer & Auth**   | `payments`, `sync_state`, `challenge_nonces`, `merchants`                                            |
 | **Tenancy & Roles**    | `role_tuples`, `merchant_stores`, `merchant_api_keys`                                                |
 | **Inventory Management**| `merchant_catalog_items`, `inventory_items`, `inventory_reservations`, `inventory_reservation_items` |
 | **Webhooks & Batches** | `receipt_batches`, `webhook_deliveries`, `webhook_attempts`                                          |
