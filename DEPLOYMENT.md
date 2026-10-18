@@ -318,3 +318,5 @@ string, per the IPv6 note above.
 | Option 4 | Standalone (systemd + cron + sync.yml) |
 
 Decision: option 4 now. The loop runs for 55 minutes.
+
+| **4. Keep the loop, fix the defects**                                                                        | Same ~660 runner-min/day. Free on public repos; on GitHub Team/Enterprise-billed minutes it is the most expensive option here. | Acceptable once the defects below are fixed.                                                                                                                                                                  | What this repo does today, plus the fixes in this PR.                                                                                                                       |
