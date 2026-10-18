@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { verifyAuth, verifyToken, extractMerchantId } from './verify-auth';
+import { describe, expect, it } from 'vitest';
+import { extractMerchantId, verifyAuth, verifyToken } from './verify-auth';
 
 function b64url(str: string): string {
   return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -103,3 +103,4 @@ describe('verifyAuth and verifyToken', () => {
     expect(extractMerchantId({ other: 'val' })).toBeNull();
   });
 });
+
