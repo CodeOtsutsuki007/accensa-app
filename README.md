@@ -9,7 +9,6 @@
   <p>
     <a href="https://accensa-dashboard.vercel.app/verify"><strong>Verify a Receipt</strong></a> ·
     <a href="https://accensa-dashboard.vercel.app/dashboard"><strong>Live Dashboard</strong></a> ·
-    <a href="https://accensa.github.io/accensa-app/"><strong>Documentation</strong></a> ·
     <a href="https://github.com/accensa/accensa-contracts"><strong>accensa-contracts</strong></a>
   </p>
 </div>
