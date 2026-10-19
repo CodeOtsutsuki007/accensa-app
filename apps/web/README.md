@@ -92,3 +92,5 @@ This app does not ship Storybook. It was configured but no workflow ever built i
 When scaling out horizontally behind a load balancer, local in-memory rate limiters continue to operate independently on each container instance. Each process enforces a five-attempt TOTP limit and a 12-attempt-per-minute reservation limit locally. While requests spread across multiple instances can increase the aggregate allowance across the cluster, these per-process limits remain fully effective at bounding the abuse potential on any single instance.
 
 Each process enforces a five-attempt TOTP limit and a 12-attempt-per-minute reservation limit. Running multiple instances means local limits apply independently per process, so requests spread across instances can increase the aggregate allowance without rendering the limits ineffective.
+
+Each process independently enforces a five-attempt TOTP limit and a 12-attempt-per-minute reservation limit. While requests spread across multiple instances can increase the aggregate allowance across processes, the local limits remain fully effective per instance.
