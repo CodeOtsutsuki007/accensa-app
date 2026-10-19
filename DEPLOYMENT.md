@@ -320,3 +320,11 @@ string, per the IPv6 note above.
 Decision: option 4 now. The loop runs for 55 minutes.
 
 | **4. Keep the loop, fix the defects**                                                                        | Same ~660 runner-min/day. Free on public repos; on GitHub Team/Enterprise-billed minutes it is the most expensive option here. | Acceptable once the defects below are fixed.                                                                                                                                                                  | What this repo does today, plus the fixes in this PR.                                                                                                                       |
+
+| **4. Keep the loop, document the defects**                                     
+
+## Defects present in `sync.yml` today
+
+1. **`cancel-in-progress: true`** remains active in `.github/workflows/sync.yml:20`, meaning overlapping schedules still cancel the in-flight run rather than queuing.
+2. **Loop runtime is 55 minutes** (`sync.yml:58` computes `END_TIME=$(( $(date +%s) + 3300 ))`), perfectly matching the document's cost figure of ~55 min/hour.
+3. **`HEARTBEAT_URL` is not implemented** — no heartbeat secret or ping step exists in `sync.yml`, so liveness depends entirely on workflow failure alerts rather than positive pings.
