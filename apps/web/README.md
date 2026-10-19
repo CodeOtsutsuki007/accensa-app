@@ -84,3 +84,5 @@ The TOTP verification limiter (`src/lib/auth/totp-rate-limit.ts`) and the invent
 The pair is all-or-nothing: Upstash is used only when **both** are set. If either is missing, each limiter falls back to an in-memory window held inside the running process. The limiter does not switch off, but its counter is private to that process.
 
 **A deployment that runs more than one instance must set both variables.** Without them, each process independently enforces its own local limits (a five-attempt TOTP limit and a 12-attempt-per-minute reservation limit). When requests are spread across multiple instances, the aggregate allowance across instances can increase, but each process still enforces its own per-process limits.
+
+Each process enforces a five-attempt TOTP limit and a 12-attempt-per-minute reservation limit. Requests spread across multiple instances can increase the aggregate allowance, but the local limits continue to protect each process.
