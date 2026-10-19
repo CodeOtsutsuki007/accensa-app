@@ -96,7 +96,7 @@ describe('verify-auth', () => {
     const res = await verifyAuth(`Bearer ${token}`, secret);
     expect(res.valid).toBe(true);
     if (res.valid) {
-      expect(res.merchantId).toBe('merch-999');
+      expect(res.payload?.merchantId).toBe('merch-999');
     }
   });
 
