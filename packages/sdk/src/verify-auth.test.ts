@@ -1,108 +1,106 @@
 import { describe, it, expect } from 'vitest';
-import { verifyAuth, extractMerchantId } from './verify-auth';
+import { verifyAuth, verifyToken, extractMerchantId } from './verify-auth';
+
+function base64UrlEncode(str: string): string {
+  return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
 
 async function createToken(payload: object, secret: string): Promise<string> {
+  const header = { alg: 'HS256', typ: 'JWT' };
+  const encodedHeader = base64UrlEncode(JSON.stringify(header));
+  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+  const data = `${encodedHeader}.${encodedPayload}`;
+
   const enc = new TextEncoder();
-  const keyData = enc.encode(secret);
   const key = await crypto.subtle.importKey(
     'raw',
-    keyData,
+    enc.encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']
   );
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  const body = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  const data = enc.encode(`${header}.${body}`);
-  const sigBuf = await crypto.subtle.sign('HMAC', key, data);
-  const sig = btoa(String.fromCharCode(...new Uint8Array(sigBuf)))
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
-  return `${header}.${body}.${sig}`;
+  const signature = await crypto.subtle.sign('HMAC', key, enc.encode(data));
+  const encodedSignature = Buffer.from(signature).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+
+  return `${data}.${encodedSignature}`;
 }
 
 describe('verify-auth', () => {
-  const secret = 'test-secret';
+  const secret = 'test-secret-key-1234567890';
+  const issuer = 'test-issuer';
 
-  it('rejects missing authorization header', async () => {
-    const res = await verifyAuth(undefined, secret);
-    expect(res.valid).toBe(false);
-    if (!res.valid) {
-      expect(res.error).toBeDefined();
-    }
+  describe('verifyAuth', () => {
+    it('rejects a missing Authorization header', async () => {
+      const req = new Request('https://example.com/api', { headers: {} });
+      const result = await verifyAuth(req, { secret, issuer });
+      expect(result).toEqual({ valid: false, error: 'Missing authorization header' });
+    });
+
+    it('rejects a header that does not start with Bearer', async () => {
+      const req = new Request('https://example.com/api', {
+        headers: { authorization: 'Basic token123' },
+      });
+      const result = await verifyAuth(req, { secret, issuer });
+      expect(result).toEqual({ valid: false, error: 'Invalid authorization format' });
+    });
+
+    it('rejects a header with incorrect parts', async () => {
+      const req = new Request('https://example.com/api', {
+        headers: { authorization: 'Bearer' },
+      });
+      const result = await verifyAuth(req, { secret, issuer });
+      expect(result).toEqual({ valid: false, error: 'Invalid authorization format' });
+    });
   });
 
-  it('rejects non-Bearer authorization header', async () => {
-    const res = await verifyAuth('Basic 12345', secret);
-    expect(res.valid).toBe(false);
+  describe('verifyToken', () => {
+    it('rejects a token that does not have three parts', async () => {
+      const result = await verifyToken('header.payload', { secret, issuer });
+      expect(result).toEqual({ valid: false, error: 'Invalid token format' });
+    });
+
+    it('rejects a token with an expired timestamp beyond clockTolerance', async () => {
+      const now = Math.floor(Date.now() / 1000);
+      const token = await createToken({ exp: now - 60, iss: issuer }, secret);
+      const result = await verifyToken(token, { secret, issuer, clockTolerance: 10 });
+      expect(result).toEqual({ valid: false, error: 'Token expired' });
+    });
+
+    it('rejects an issuer mismatch', async () => {
+      const now = Math.floor(Date.now() / 1000);
+      const token = await createToken({ exp: now + 60, iss: 'wrong-issuer' }, secret);
+      const result = await verifyToken(token, { secret, issuer });
+      expect(result).toEqual({ valid: false, error: 'Invalid issuer' });
+    });
+
+    it('rejects a token signed with a different secret', async () => {
+      const now = Math.floor(Date.now() / 1000);
+      const token = await createToken({ exp: now + 60, iss: issuer }, 'wrong-secret-key-1234567890');
+      const result = await verifyToken(token, { secret, issuer });
+      expect(result).toEqual({ valid: false, error: 'Invalid signature' });
+    });
+
+    it('successfully verifies a valid signed token', async () => {
+      const now = Math.floor(Date.now() / 1000);
+      const token = await createToken({ exp: now + 60, iss: issuer, merchantId: 'm-1' }, secret);
+      const result = await verifyToken(token, { secret, issuer });
+      expect(result.valid).toBe(true);
+      expect(result.payload).toBeDefined();
+    });
+
+    it('catches malformed base64url/JSON payloads and returns valid false', async () => {
+      const result = await verifyToken('notbase64.badjson.sig', { secret, issuer });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBeDefined();
+    });
   });
 
-  it('rejects token with invalid part count', async () => {
-    const res = await verifyAuth('Bearer one.two', secret);
-    expect(res.valid).toBe(false);
-  });
-
-  it('rejects expired token', async () => {
-    const expiredPayload = {
-      exp: Math.floor(Date.now() / 1000) - 60,
-      iss: 'accensa',
-      sub: 'merchant-123',
-    };
-    const token = await createToken(expiredPayload, secret);
-    const res = await verifyAuth(`Bearer ${token}`, secret);
-    expect(res.valid).toBe(false);
-    if (!res.valid) {
-      expect(res.error).toContain('expired');
-    }
-  });
-
-  it('rejects issuer mismatch', async () => {
-    const payload = {
-      exp: Math.floor(Date.now() / 1000) + 3600,
-      iss: 'wrong-issuer',
-      sub: 'merchant-123',
-    };
-    const token = await createToken(payload, secret);
-    const res = await verifyAuth(`Bearer ${token}`, secret);
-    expect(res.valid).toBe(false);
-    if (!res.valid) {
-      expect(res.error).toContain('issuer');
-    }
-  });
-
-  it('rejects invalid signature', async () => {
-    const payload = {
-      exp: Math.floor(Date.now() / 1000) + 3600,
-      iss: 'accensa',
-      sub: 'merchant-123',
-    };
-    const token = await createToken(payload, 'wrong-secret');
-    const res = await verifyAuth(`Bearer ${token}`, secret);
-    expect(res.valid).toBe(false);
-    if (!res.valid) {
-      expect(res.error).toContain('signature');
-    }
-  });
-
-  it('successfully verifies a valid signed token', async () => {
-    const payload = {
-      exp: Math.floor(Date.now() / 1000) + 3600,
-      iss: 'accensa',
-      merchantId: 'merch-999',
-      sub: 'sub-111',
-    };
-    const token = await createToken(payload, secret);
-    const res = await verifyAuth(`Bearer ${token}`, secret);
-    expect(res.valid).toBe(true);
-    if (res.valid) {
-      expect(res.payload?.merchantId).toBe('merch-999');
-    }
-  });
-
-  it('extractMerchantId prioritizes merchantId then sub then null', () => {
-    expect(extractMerchantId({ merchantId: 'm1', sub: 's1' })).toBe('m1');
-    expect(extractMerchantId({ sub: 's1' })).toBe('s1');
-    expect(extractMerchantId({})).toBeNull();
+  describe('extractMerchantId', () => {
+    it('prefers merchantId, then sub, then null', () => {
+      expect(extractMerchantId({ merchantId: '123', sub: '456' })).toBe('123');
+      expect(extractMerchantId({ sub: '456' })).toBe('456');
+      expect(extractMerchantId({})).toBeNull();
+      expect(extractMerchantId(null)).toBeNull();
+    });
   });
 });
