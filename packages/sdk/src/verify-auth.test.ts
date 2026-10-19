@@ -2,7 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { verifyAuth, verifyToken, extractMerchantId } from './verify-auth';
 
 function base64UrlEncode(str: string): string {
-  return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  return Buffer.from(str)
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
 }
 
 async function createToken(payload: object, secret: string): Promise<string> {
@@ -20,7 +24,11 @@ async function createToken(payload: object, secret: string): Promise<string> {
     ['sign']
   );
   const signature = await crypto.subtle.sign('HMAC', key, enc.encode(data));
-  const encodedSignature = Buffer.from(signature).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  const encodedSignature = Buffer.from(signature)
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
 
   return `${data}.${encodedSignature}`;
 }
