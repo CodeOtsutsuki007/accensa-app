@@ -88,5 +88,3 @@ The pair is all-or-nothing: Upstash is used only when **both** are set. If eithe
 ## Storybook
 
 This app does not ship Storybook. It was configured but no workflow ever built it, so its config and stories could rot unnoticed while the dependencies were installed on every run. It was removed rather than gated; if component documentation is wanted again, re-add it together with a CI step that runs `storybook build`.
-
-When deployed across multiple instances without a shared rate limiter (such as Upstash Redis), each process enforces its own limits independently—specifically, a five-attempt limit for TOTP and a 12-attempt-per-minute limit for reservations per process. Requests spread across multiple instances can increase the aggregate allowance across the cluster, though the local limits continue to enforce strict per-process thresholds.
