@@ -21,7 +21,7 @@ async function createToken(payload: object, secret: string): Promise<string> {
     enc.encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ['sign']
+    ['sign'],
   );
   const signature = await crypto.subtle.sign('HMAC', key, enc.encode(data));
   const encodedSignature = Buffer.from(signature)
@@ -83,7 +83,10 @@ describe('verify-auth', () => {
 
     it('rejects a token signed with a different secret', async () => {
       const now = Math.floor(Date.now() / 1000);
-      const token = await createToken({ exp: now + 60, iss: issuer }, 'wrong-secret-key-1234567890');
+      const token = await createToken(
+        { exp: now + 60, iss: issuer },
+        'wrong-secret-key-1234567890',
+      );
       const result = await verifyToken(token, { secret, issuer });
       expect(result).toEqual({ valid: false, error: 'Invalid signature' });
     });
