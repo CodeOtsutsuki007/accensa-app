@@ -70,12 +70,13 @@ quietly brought up to date if the schema has changed.
 
 The fourteen tables created are grouped by purpose below:
 
-| Purpose / Domain       | Table Names                                                                                          |
-| ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Core Indexer & Auth**    | `payments`, `sync_state`, `challenge_nonces`, `merchants`                                            |
-| **Tenancy & Roles**    | `role_tuples`, `merchant_stores`, `merchant_api_keys`                                                |
-| **Inventory Management**| `merchant_catalog_items`, `inventory_items`, `inventory_reservations`, `inventory_reservation_items` |
-| **Webhooks & Batches** | `receipt_batches`, `webhook_deliveries`, `webhook_attempts`                                          |
+| Purpose / Domain         | Table Names                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Core Indexer & Auth**  | `payments`, `sync_state`, `challenge_nonces`, `merchants`                                            |
+| **Tenancy & Roles**      | `role_tuples`, `merchant_stores`, `merchant_api_keys`                                                |
+| **Inventory Management** | `merchant_catalog_items`, `inventory_items`, `inventory_reservations`, `inventory_reservation_items` |
+| **Webhooks & Batches**   | `receipt_batches`, `webhook_deliveries`, `webhook_attempts`                                          |
+
 ### How to verify
 
 Start the dashboard:
@@ -138,6 +139,7 @@ evolution:
 These files are **not executed by any tool**. They exist as documentation of what
 `ensureSchema()` does in code. If you need to understand why a column exists or
 what changed, read the corresponding migration file for the full rationale.
+
 ## 4. Environment variables reference
 
 | Variable           | Required | Description                                                                     |
