@@ -83,10 +83,10 @@ The TOTP verification limiter (`src/lib/auth/totp-rate-limit.ts`) and the invent
 
 The pair is all-or-nothing: Upstash is used only when **both** are set. If either is missing, each limiter falls back to an in-memory window held inside the running process. The limiter does not switch off, but its counter is private to that process.
 
-**A deployment that runs more than one instance must set both variables.** Without them, each process independently enforces a five-attempt TOTP limit and a 12-attempt-per-minute reservation limit. While requests spread across instances can increase the aggregate allowance, each process continues to enforce its own limits.
+**A deployment that runs more than one instance must set both variables.** Without them, each process independently enforces a five-attempt TOTP limit and a 12-attempt-per-minute reservation limit. When requests are spread across multiple instances, the aggregate allowance can increase, but each individual process strictly enforces its own local limits.
 
 ## Storybook
 
 This app does not ship Storybook. It was configured but no workflow ever built it, so its config and stories could rot unnoticed while the dependencies were installed on every run. It was removed rather than gated; if component documentation is wanted again, re-add it together with a CI step that runs `storybook build`.
 
-Each process enforces a five-attempt TOTP limit and a 12-attempt-per-minute reservation limit. Requests spread across instances can increase the aggregate allowance, while local limits continue to protect each process.
+
