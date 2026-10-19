@@ -88,3 +88,5 @@ The pair is all-or-nothing: Upstash is used only when **both** are set. If eithe
 ## Storybook
 
 This app does not ship Storybook. It was configured but no workflow ever built it, so its config and stories could rot unnoticed while the dependencies were installed on every run. It was removed rather than gated; if component documentation is wanted again, re-add it together with a CI step that runs `storybook build`.
+
+Each process independently enforces a five-attempt limit for TOTP and a 12-attempt-per-minute limit for the reservation limiter. Requests spread across multiple instances can increase the aggregate allowance across processes, but the local limits on each instance continue to restrict abuse effectively.
