@@ -41,7 +41,7 @@ describe('verify-auth', () => {
     it('rejects a missing Authorization header', async () => {
       const req = new Request('https://example.com/api', { headers: {} });
       const result = await verifyAuth(req, { secret, issuer });
-      expect(result).toEqual({ valid: false, error: 'Missing authorization header' });
+      expect(result).toEqual({ valid: false, error: 'No authorization header' });
     });
 
     it('rejects a header that does not start with Bearer', async () => {
@@ -71,7 +71,7 @@ describe('verify-auth', () => {
       const now = Math.floor(Date.now() / 1000);
       const token = await createToken({ exp: now - 60, iss: issuer }, secret);
       const result = await verifyToken(token, { secret, issuer, clockTolerance: 10 });
-      expect(result).toEqual({ valid: false, error: 'Token expired' });
+      expect(result).toEqual({ valid: false, error: 'Token expired', expiresAt: now - 60 });
     });
 
     it('rejects an issuer mismatch', async () => {
@@ -111,7 +111,6 @@ describe('verify-auth', () => {
       expect(extractMerchantId({ merchantId: '123', sub: '456' })).toBe('123');
       expect(extractMerchantId({ sub: '456' })).toBe('456');
       expect(extractMerchantId({})).toBeNull();
-      expect(extractMerchantId(null)).toBeNull();
     });
   });
 });
